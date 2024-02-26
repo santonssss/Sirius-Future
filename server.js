@@ -1,42 +1,69 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const fs = require("fs");
+const fs = require("fs").promises;
 
 const app = express();
-const port = 3000;
-const dataFilePath = "fruits.json";
+const PORT = 3001;
 
-app.use(bodyParser.json());
+app.use(express.json());
 
-let fruits = [];
-
-try {
-  const data = fs.readFileSync(dataFilePath, "utf8");
-  fruits = JSON.parse(data).fruits || [];
-} catch (error) {
-  console.error("Ошибка при загрузке данных из файла:", error.message);
-}
+const filePath = "totalAmount.json";
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
-  next();
+
+  res.header("Access-Control-Allow-Credentials", true);
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
-
-app.get("/fruits", (req, res) => {
-  res.json({ fruits });
+app.get("/getTotalAmount", async (req, res) => {
+  try {
+    const data = await fs.readFile(filePath, "utf-8");
+    res.json(JSON.parse(data));
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
-app.post("/fruits", (req, res) => {
-  const newFruit = req.body.fruit;
+app.post("/updateTotalAmount", async (req, res) => {
+  try {
+    const { amount, tableNumber } = req.body;
 
-  fruits.push(newFruit);
+    if (isNaN(amount)) {
+      return res.status(400).json({ error: "Неверная сумма" });
+    }
 
-  fs.writeFileSync(dataFilePath, JSON.stringify({ fruits }), "utf8");
+    const data = await fs.readFile(filePath, "utf-8");
+    const jsonData = JSON.parse(data);
 
-  res.json({ message: "Фрукт успешно добавлен", fruits: fruits });
+    jsonData.allTime = (
+      parseFloat(jsonData.allTime) + parseFloat(amount)
+    ).toFixed(2);
+
+    const currentDate = new Date();
+    const month = currentDate.toLocaleString("ru-RU", { month: "long" });
+
+    jsonData.monthly[month] = (
+      parseFloat(jsonData.monthly[month]) + parseFloat(amount)
+    ).toFixed(2);
+    const dayOfMonth = currentDate.getDate();
+    if (jsonData.day.hasOwnProperty(dayOfMonth)) {
+      jsonData.day[dayOfMonth] = (
+        parseFloat(jsonData.day[dayOfMonth]) + parseFloat(amount)
+      ).toFixed(2);
+    } else {
+      jsonData.day[dayOfMonth] = parseFloat(amount).toFixed(2);
+    }
+    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), "utf-8");
+    res.json({ success: true, newData: jsonData });
+  } catch (error) {
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
 });
-
-app.listen(port, () => {
-  console.log(`Сервер запущен на порту ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

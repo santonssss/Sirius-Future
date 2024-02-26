@@ -1,51 +1,39 @@
 import React, { useState, useEffect } from "react";
 import TableCard from "./TableCard";
-export default function ProductDetail() {
-  const [fruits, setFruits] = useState([]);
-  const [newFruit, setNewFruit] = useState("");
-
-  const fetchFruits = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/fruits");
-      if (!response.ok) {
-        throw new Error(`Ошибка HTTP: ${response.status}`);
-      }
-      const data = await response.json();
-      setFruits(data.fruits);
-    } catch (error) {
-      console.error("Ошибка при получении фруктов:", error.message);
-    }
-  };
-
+export default function ProductDetail({ setUplo, uplo }) {
+  const [sg, setSg] = useState(0);
+  const [day, setDay] = useState(0);
   useEffect(() => {
-    fetchFruits();
-  }, []);
+    const handleFetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/getTotalAmount`);
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
+        const data = await response.json();
+        setSg(data.allTime);
+        setDay(data.day);
+      } catch (error) {
+        console.error("Ошибка запроса:", error);
+      }
+    };
 
-    try {
-      await fetch("http://localhost:3000/fruits", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fruit: newFruit }),
-      });
-      console.log(fruits);
-      fetchFruits();
-
-      setNewFruit("");
-    } catch (error) {
-      console.error("Ошибка при добавлении фрукта:", error.message);
-    }
-  };
-
+    handleFetchData();
+  }, [uplo]);
+  const totalForDay = Object.values(day)
+    .reduce((acc, value) => acc + parseFloat(value), 0)
+    .toFixed(2);
   return (
-    <section>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((tableNumber) => (
-        <TableCard key={tableNumber} tableNumber={tableNumber} />
-      ))}
-    </section>
+    <>
+      <h1>За все время {sg} сум</h1>
+      <h2>За день {totalForDay} сум </h2>
+      <section>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((tableNumber) => (
+          <TableCard
+            key={tableNumber}
+            tableNumber={tableNumber}
+            setUplo={setUplo}
+          />
+        ))}
+      </section>
+    </>
   );
 }
