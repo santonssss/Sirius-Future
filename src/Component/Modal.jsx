@@ -17,7 +17,6 @@ const Modal = ({
         e.preventDefault();
         onClose();
         handleCloseAccount();
-        setUplo((prev) => (prev += 1));
       }}
       className="modal-overlay"
     >
@@ -27,7 +26,14 @@ const Modal = ({
           <p>Зафиксированная сумма: {fixedAmount.toFixed(2)} сум</p>
         </div>
         <div className="modal-footer">
-          <button className="modal-button">Закрыть</button>
+          <button
+            className="modal-button"
+            onClick={() => {
+              setUplo((prev) => prev + 1);
+            }}
+          >
+            Закрыть
+          </button>
         </div>
       </div>
     </form>,

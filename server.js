@@ -31,7 +31,7 @@ app.get("/getTotalAmount", async (req, res) => {
 });
 app.post("/updateTotalAmount", async (req, res) => {
   try {
-    const { amount, tableNumber } = req.body;
+    const { amount } = req.body;
 
     if (isNaN(amount)) {
       return res.status(400).json({ error: "Неверная сумма" });
