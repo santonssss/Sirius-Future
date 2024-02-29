@@ -19,8 +19,10 @@ function App() {
     };
     handleFetchData();
   }, [uplo]);
-  const today = new Date().getDate().toString();
-  const totalForDay = parseFloat(day[today]).toFixed(2) || 0;
+  const today = new Date().getDate();
+  const totalForDay =
+    day && day.hasOwnProperty(today) ? parseFloat(day[today]).toFixed(2) : 0;
+
   return (
     <>
       <h1>За все время {sg} сум</h1>

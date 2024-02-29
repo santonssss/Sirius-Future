@@ -8,9 +8,11 @@ const Modal = ({
   onClose,
   fixedAmount,
   handleCloseAccount,
+  totalAmount,
+  handleCloseAccountNapitki,
 }) => {
   if (!isOpen) return null;
-
+  const allAmount = totalAmount + fixedAmount;
   return ReactDOM.createPortal(
     <form
       onSubmit={(e) => {
@@ -23,7 +25,9 @@ const Modal = ({
       <div className="modal-content">
         <div className="modal-header">Закрыт счет</div>
         <div className="modal-body">
-          <p>Зафиксированная сумма: {fixedAmount.toFixed(2)} сум</p>
+          <p>Зафиксированная сумма на стол: {fixedAmount.toFixed(2)} сум</p>
+          <p>Зафиксированная сумма на напитки: {totalAmount.toFixed(2)} сум</p>
+          <p>Зафиксированная сумма общая сумма: {allAmount.toFixed(2)} сум</p>
         </div>
         <div className="modal-footer">
           <button
