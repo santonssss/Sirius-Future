@@ -3,8 +3,6 @@ import React, { useState, useEffect } from "react";
 import Modal from "./Modal";
 import ModalToDr from "./ModalToDr";
 export default function ProductDetail({ setUplo, uplo, tableNumber }) {
-  const [sg, setSg] = useState(0);
-  const [day, setDay] = useState(0);
   const [time, setTime] = useState(0);
   const [amount, setAmount] = useState(0);
   const [isClosed, setIsClosed] = useState(false);
@@ -24,18 +22,6 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
       setTime(savedTime);
       setAmount(savedAmount);
     }
-    const handleFetchData = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/getTotalAmount`);
-
-        const data = await response.json();
-        setSg(data.allTime);
-        setDay(data.day);
-      } catch (error) {
-        console.error("Ошибка запроса:", error);
-      }
-    };
-    handleFetchData();
   }, [uplo, tableNumber]);
 
   const saveDataToStorage = (data) => {

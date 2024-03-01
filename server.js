@@ -21,6 +21,7 @@ app.use((req, res, next) => {
     next();
   }
 });
+
 app.get("/getTotalAmount", async (req, res) => {
   try {
     const data = await fs.readFile(filePath, "utf-8");
@@ -29,6 +30,7 @@ app.get("/getTotalAmount", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 app.post("/updateTotalAmount", async (req, res) => {
   try {
     const { amount } = req.body;
@@ -45,19 +47,26 @@ app.post("/updateTotalAmount", async (req, res) => {
     ).toFixed(2);
 
     const currentDate = new Date();
+    const year = currentDate.getFullYear();
     const month = currentDate.toLocaleString("ru-RU", { month: "long" });
-
-    jsonData.monthly[month] = (
-      parseFloat(jsonData.monthly[month]) + parseFloat(amount)
-    ).toFixed(2);
     const dayOfMonth = currentDate.getDate();
-    if (jsonData.day.hasOwnProperty(dayOfMonth)) {
-      jsonData.day[dayOfMonth] = (
-        parseFloat(jsonData.day[dayOfMonth]) + parseFloat(amount)
+
+    // Уникальная идентификация для каждой даты
+    if (!jsonData.day[year]) {
+      jsonData.day[year] = {};
+    }
+    if (!jsonData.day[year][month]) {
+      jsonData.day[year][month] = {};
+    }
+
+    if (jsonData.day[year][month].hasOwnProperty(dayOfMonth)) {
+      jsonData.day[year][month][dayOfMonth] = (
+        parseFloat(jsonData.day[year][month][dayOfMonth]) + parseFloat(amount)
       ).toFixed(2);
     } else {
-      jsonData.day[dayOfMonth] = parseFloat(amount).toFixed(2);
+      jsonData.day[year][month][dayOfMonth] = parseFloat(amount).toFixed(2);
     }
+
     await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), "utf-8");
     res.json({ success: true, newData: jsonData });
   } catch (error) {
@@ -69,10 +78,11 @@ app.post("/updateTotalAmountNapitki", async (req, res) => {
     const { amount, drinks } = req.body;
 
     if (isNaN(amount)) {
-      return errorHandler(res, 400, "Неверная сумма");
+      return res.status(400).json({ error: "Неверная сумма" });
     }
 
     const currentDate = new Date();
+    const year = currentDate.getFullYear();
     const month = currentDate.toLocaleString("ru-RU", { month: "long" });
     const dayOfMonth = currentDate.getDate();
 
@@ -88,38 +98,53 @@ app.post("/updateTotalAmountNapitki", async (req, res) => {
       parseFloat(jsonData.napitki) + totalDrinksAmount
     ).toFixed(2);
 
-    // Обновление данных по месяцам
-    if (!jsonData.monthlyNapitki[month]) {
-      jsonData.monthlyNapitki[month] = {};
+    // Уникальная идентификация для каждой даты в разделе с напитками
+    if (!jsonData.dayNapitki[year]) {
+      jsonData.dayNapitki[year] = {};
+    }
+    if (!jsonData.dayNapitki[year][month]) {
+      jsonData.dayNapitki[year][month] = {};
     }
 
     drinks.forEach((drink) => {
-      if (!jsonData.monthlyNapitki[month][drink.name]) {
-        jsonData.monthlyNapitki[month][drink.name] = "0";
+      // Обновление данных по месяцам для напитков
+      if (!jsonData.monthlyNapitki[year]) {
+        jsonData.monthlyNapitki[year] = {};
       }
-      jsonData.monthlyNapitki[month][drink.name] = (
-        parseFloat(jsonData.monthlyNapitki[month][drink.name]) +
-        parseFloat(drink.quantity)
-      ).toFixed(2);
-    });
-    if (!jsonData.dayNapitki[dayOfMonth]) {
-      jsonData.dayNapitki[dayOfMonth] = {};
-    }
+      if (!jsonData.monthlyNapitki[year][month]) {
+        jsonData.monthlyNapitki[year][month] = {};
+      }
 
-    drinks.forEach((drink) => {
-      if (!jsonData.dayNapitki[dayOfMonth][drink.name]) {
-        jsonData.dayNapitki[dayOfMonth][drink.name] = "0";
+      if (!jsonData.monthlyNapitki[year][month][drink.name]) {
+        jsonData.monthlyNapitki[year][month][drink.name] = "0";
       }
-      jsonData.dayNapitki[dayOfMonth][drink.name] = (
-        parseFloat(jsonData.dayNapitki[dayOfMonth][drink.name]) +
+
+      jsonData.monthlyNapitki[year][month][drink.name] = (
+        parseFloat(jsonData.monthlyNapitki[year][month][drink.name]) +
         parseFloat(drink.quantity)
       ).toFixed(2);
+
+      // Обновление данных по дням для напитков
+      if (jsonData.dayNapitki[year][month].hasOwnProperty(dayOfMonth)) {
+        if (!jsonData.dayNapitki[year][month][dayOfMonth][drink.name]) {
+          jsonData.dayNapitki[year][month][dayOfMonth][drink.name] = "0";
+        }
+        jsonData.dayNapitki[year][month][dayOfMonth][drink.name] = (
+          parseFloat(jsonData.dayNapitki[year][month][dayOfMonth][drink.name]) +
+          parseFloat(drink.quantity)
+        ).toFixed(2);
+      } else {
+        jsonData.dayNapitki[year][month][dayOfMonth] = {};
+        jsonData.dayNapitki[year][month][dayOfMonth][drink.name] = parseFloat(
+          drink.quantity
+        ).toFixed(2);
+      }
     });
 
     await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), "utf-8");
     res.json({ success: true, newData: jsonData });
   } catch (error) {
-    errorHandler(res, 500, "Внутренняя ошибка сервера");
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 });
 
