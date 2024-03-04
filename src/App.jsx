@@ -20,7 +20,7 @@ function App() {
     const handleFetchData = async () => {
       try {
         const response = await fetch(
-          `https://glitch.com/edit/#!/enchanted-marmalade-brie.me/getTotalAmount`
+          `https://enchanted-marmalade-brie.glitch.me/getTotalAmount`
         );
         const data = await response.json();
         setSg(data.allTime);

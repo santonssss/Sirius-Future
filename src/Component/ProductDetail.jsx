@@ -49,15 +49,18 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
   };
   const handleCloseAccount = async () => {
     try {
-      const response = await fetch("http://localhost:3001/updateTotalAmount", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: Number(fixedAmount),
-        }),
-      });
+      const response = await fetch(
+        "https://enchanted-marmalade-brie.glitch.me/updateTotalAmount",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: Number(fixedAmount),
+          }),
+        }
+      );
 
       if (response.ok) {
         console.log("Данные успешно отправлены на сервер Stol");
@@ -69,7 +72,7 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
     }
     try {
       const response = await fetch(
-        "http://localhost:3001/updateTotalAmountNapitki",
+        "https://enchanted-marmalade-brie.glitch.me/updateTotalAmountNapitki",
         {
           method: "POST",
           headers: {
@@ -114,8 +117,6 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
           setAmount((prevAmount) => prevAmount + 35000 / 60);
         }
       }, 1000);
-
-      // Обновление общего количества напитков
       const newTotalDrinks = drinks.reduce(
         (total, drink) => total + drink.quantity,
         0
