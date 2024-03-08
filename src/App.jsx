@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import ProductDetail from "./Component/ProductDetail";
+import { Route, Routes } from "react-router-dom";
+import Admin from "./pages/Admin";
+import Grafa from "./pages/Grafa";
 
 function App() {
   const [uplo, setUplo] = useState(0);
+  const [serverIsWork, setServerIsWork] = useState(false);
   const [sg, setSg] = useState(0);
   const [dayData, setDayData] = useState({});
   const [selectedYear, setSelectedYear] = useState(
@@ -16,79 +20,60 @@ function App() {
     new Date().getDate().toString()
   );
 
+  const [monthlyData, setMonthlyData] = useState();
   useEffect(() => {
     const handleFetchData = async () => {
       try {
         const response = await fetch(
           `https://enchanted-marmalade-brie.glitch.me/getTotalAmount`
         );
+        if (response.status === 500) {
+          setServerIsWork(false);
+        }
         const data = await response.json();
         setSg(data.allTime);
+        setMonthlyData(data.monthly);
+        console.log(monthlyData);
         setDayData(data);
+        setServerIsWork(true);
       } catch (error) {
+        setServerIsWork(false);
         console.error("Ошибка запроса:", error);
       }
     };
-
     handleFetchData();
-  }, [uplo]);
+  }, [uplo, selectedYear, selectedMonth]);
 
   const selectedDateData =
     dayData?.day?.[selectedYear]?.[selectedMonth]?.[selectedDay] || "0";
   const selectedDateDrinks =
     dayData?.dayNapitki?.[selectedYear]?.[selectedMonth]?.[selectedDay] || {};
-
   return (
-    <>
-      <h1>За все время {sg} сум</h1>
-      <div>
-        {/* Добавьте выбор даты (года, месяца и дня) */}
-        <label>Выберите год:</label>
-        <input
-          type="text"
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
-        />
-
-        <label>Выберите месяц:</label>
-        <input
-          type="text"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-        />
-
-        <label>Выберите день:</label>
-        <input
-          type="text"
-          value={selectedDay}
-          onChange={(e) => setSelectedDay(e.target.value)}
-        />
-      </div>
-
-      {/* Отображение данных о продажах для выбранной даты */}
-      <h2>За день {selectedDateData} сум</h2>
-
-      {/* Отображение данных о продажах напитков для выбранной даты */}
-      <h3>Продажи напитков за день:</h3>
-      <ul>
-        {Object.entries(selectedDateDrinks).map(([drinkName, quantity]) => (
-          <li key={drinkName}>
-            {drinkName}: {quantity} шт.
-          </li>
-        ))}
-      </ul>
-
-      <section>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((tableNumber) => (
-          <ProductDetail
-            key={tableNumber}
-            uplo={uplo}
-            setUplo={setUplo}
-            tableNumber={tableNumber}
+    <Routes>
+      <Route
+        path={"/"}
+        element={
+          <Admin setUplo={setUplo} serverIsWork={serverIsWork} uplo={uplo} />
+        }
+      />
+      <Route
+        path={"/admin-panel"}
+        element={
+          <Grafa
+            sg={sg}
+            monthlyData={monthlyData}
+            setSelectedDay={setSelectedDay}
+            setSelectedMonth={setSelectedMonth}
+            setSelectedYear={setSelectedYear}
+            selectedDay={selectedDay}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            selectedDateDrinks={selectedDateDrinks}
+            selectedDateData={selectedDateData}
           />
-        ))}
-      </section>
-    </>
+        }
+      />
+    </Routes>
   );
 }
 

@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 
 import Modal from "./Modal";
 import ModalToDr from "./ModalToDr";
-export default function ProductDetail({ setUplo, uplo, tableNumber }) {
+export default function ProductDetail({
+  serverIsWork,
+  setUplo,
+  uplo,
+  tableNumber,
+}) {
   const [time, setTime] = useState(0);
   const [amount, setAmount] = useState(0);
   const [isClosed, setIsClosed] = useState(false);
@@ -17,6 +22,9 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
   ]);
   useEffect(() => {
     const savedData = localStorage.getItem(`savedData_${tableNumber}`);
+
+    const currentDate = new Date();
+    console.log(currentDate.getDate());
     if (savedData) {
       const { savedTime, savedAmount } = JSON.parse(savedData);
       setTime(savedTime);
@@ -43,13 +51,20 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
     setIsOpen(false);
     setIsClosed(true);
     setFixedAmount(amount);
-    saveDataToStorage({ savedTime: time, savedAmount: amount });
-
+    saveDataToStorage({
+      savedTime: time,
+      savedAmount: amount,
+      savedDrinks: drinks,
+    });
     localStorage.setItem(`isOpen_${tableNumber}`, "false");
   };
   const handleCloseAccount = async () => {
     try {
-      const response = await fetch(
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = currentDate.toLocaleString("ru-RU", { month: "long" });
+      const dayOfMonth = currentDate.getDate();
+      const responseStol = await fetch(
         "https://enchanted-marmalade-brie.glitch.me/updateTotalAmount",
         {
           method: "POST",
@@ -58,20 +73,20 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
           },
           body: JSON.stringify({
             amount: Number(fixedAmount),
+            yearr: year,
+            monthh: month,
+            dayy: dayOfMonth,
           }),
         }
       );
 
-      if (response.ok) {
+      if (responseStol.ok) {
         console.log("Данные успешно отправлены на сервер Stol");
       } else {
-        console.error("Произошла ошибка при отправке данных на сервер");
+        console.error("Произошла ошибка при отправке данных на сервер Stol");
       }
-    } catch (error) {
-      console.error("Произошла ошибка при отправке данных на сервер", error);
-    }
-    try {
-      const response = await fetch(
+
+      const responseNapitki = await fetch(
         "https://enchanted-marmalade-brie.glitch.me/updateTotalAmountNapitki",
         {
           method: "POST",
@@ -81,20 +96,22 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
           body: JSON.stringify({
             amount: Number(fixedAmount),
             drinks: drinks,
+            yearr: year,
+            monthh: month,
+            dayy: dayOfMonth,
           }),
         }
       );
 
-      if (response.ok) {
+      if (responseNapitki.ok) {
         console.log("Данные успешно отправлены на сервер Napitki");
       } else {
-        console.error("Произошла ошибка при отправке данных на сервер");
+        console.error("Произошла ошибка при отправке данных на сервер Napitki");
       }
     } catch (error) {
       console.error("Произошла ошибка при отправке данных на сервер", error);
     }
   };
-  const handleCloseAccountNapitki = async () => {};
   useEffect(() => {
     let interval;
 
@@ -158,6 +175,11 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
         drink.id === id ? { ...drink, quantity: 0 } : drink
       )
     );
+    saveDataToStorage({
+      savedTime: time,
+      savedAmount: amount,
+      savedDrinks: drinks,
+    });
   };
   return (
     <>
@@ -191,7 +213,9 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
             </div>
           </>
         ) : (
-          <button onClick={handleOpenAccount}>Открыть счет</button>
+          <button disabled={!serverIsWork} onClick={handleOpenAccount}>
+            Открыть счет
+          </button>
         )}
         <Modal
           setUplo={setUplo}
@@ -200,7 +224,6 @@ export default function ProductDetail({ setUplo, uplo, tableNumber }) {
           onClose={() => setIsClosed(false)}
           fixedAmount={fixedAmount}
           totalAmount={totalAmount}
-          handleCloseAccountNapitki={handleCloseAccountNapitki}
         />
         <ModalToDr
           openModalDr={openModalDr}

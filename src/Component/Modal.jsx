@@ -9,7 +9,6 @@ const Modal = ({
   fixedAmount,
   handleCloseAccount,
   totalAmount,
-  handleCloseAccountNapitki,
 }) => {
   if (!isOpen) return null;
   const allAmount = totalAmount + fixedAmount;
