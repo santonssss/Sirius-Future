@@ -64,7 +64,15 @@ const Grafa = ({
           <ol>
             {Object.entries(selectedDateDrinks).map(([drinkName, quantity]) => (
               <li key={drinkName}>
-                {drinkName}: {quantity} шт.
+                {drinkName}:{" "}
+                <strong
+                  style={{
+                    fontSize: "20px",
+                  }}
+                >
+                  {quantity}
+                </strong>{" "}
+                шт.
               </li>
             ))}
           </ol>

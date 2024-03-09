@@ -7,6 +7,7 @@ export default function ProductDetail({
   setUplo,
   uplo,
   tableNumber,
+  cabine,
 }) {
   const [time, setTime] = useState(0);
   const [amount, setAmount] = useState(0);
@@ -131,7 +132,8 @@ export default function ProductDetail({
         setTotalAmount(newAmount);
 
         if (time % 60 === 0) {
-          setAmount((prevAmount) => prevAmount + 35000 / 60);
+          let pr = cabine ? 40000 : 35000;
+          setAmount((prevAmount) => prevAmount + pr / 60);
         }
       }, 1000);
       const newTotalDrinks = drinks.reduce(
@@ -184,7 +186,7 @@ export default function ProductDetail({
   return (
     <>
       <div className="card">
-        <h1>{tableNumber} Стол</h1>
+        <h1>{cabine ? `Кабина ${tableNumber}` : `${tableNumber} стол`} </h1>
         {isOpen ? (
           <>
             <button

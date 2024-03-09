@@ -33,7 +33,6 @@ function App() {
         const data = await response.json();
         setSg(data.allTime);
         setMonthlyData(data.monthly);
-        console.log(monthlyData);
         setDayData(data);
         setServerIsWork(true);
       } catch (error) {

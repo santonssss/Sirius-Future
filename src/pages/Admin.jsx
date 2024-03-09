@@ -11,7 +11,21 @@ const Admin = ({ serverIsWork, uplo, setUplo }) => {
         </Link>
       </div>
       <section>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((tableNumber) => (
+        <ProductDetail
+          serverIsWork={serverIsWork}
+          uplo={uplo}
+          setUplo={setUplo}
+          tableNumber={1}
+          cabine={true}
+        />
+        <ProductDetail
+          serverIsWork={serverIsWork}
+          uplo={uplo}
+          setUplo={setUplo}
+          tableNumber={2}
+          cabine={true}
+        />
+        {[3, 4, 5, 6, 7, 8, 9, 10, 11].map((tableNumber) => (
           <ProductDetail
             serverIsWork={serverIsWork}
             key={tableNumber}
@@ -20,6 +34,20 @@ const Admin = ({ serverIsWork, uplo, setUplo }) => {
             tableNumber={tableNumber}
           />
         ))}
+        <ProductDetail
+          serverIsWork={serverIsWork}
+          uplo={uplo}
+          setUplo={setUplo}
+          tableNumber={12}
+          cabine={true}
+        />
+        <ProductDetail
+          serverIsWork={serverIsWork}
+          uplo={uplo}
+          setUplo={setUplo}
+          tableNumber={13}
+          cabine={true}
+        />
       </section>
     </div>
   );

@@ -24,9 +24,18 @@ const Modal = ({
       <div className="modal-content">
         <div className="modal-header">Закрыт счет</div>
         <div className="modal-body">
-          <p>Зафиксированная сумма на стол: {fixedAmount.toFixed(2)} сум</p>
-          <p>Зафиксированная сумма на напитки: {totalAmount.toFixed(2)} сум</p>
-          <p>Зафиксированная сумма общая сумма: {allAmount.toFixed(2)} сум</p>
+          <p>
+            Зафиксированная сумма на стол:
+            <strong> {fixedAmount.toFixed(2)}</strong> сум
+          </p>
+          <p>
+            Зафиксированная сумма на напитки:
+            <strong>{totalAmount.toFixed(2)}</strong> сум
+          </p>
+          <p>
+            Зафиксированная сумма общая сумма:
+            <strong>{allAmount.toFixed(2)}</strong> сум
+          </p>
         </div>
         <div className="modal-footer">
           <button
