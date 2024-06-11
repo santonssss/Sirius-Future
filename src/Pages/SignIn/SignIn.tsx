@@ -28,7 +28,7 @@ const SignIn: React.FC = () => {
   });
 
   const handleSubmit = (values: any, { setSubmitting }: any) => {
-    console.log(values);
+    
     setSubmitting(false);
   };
 
